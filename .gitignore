@@ -1,2 +1,3 @@
 instance/kerko/
 instance/.secrets.toml
+instance/.env
