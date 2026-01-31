@@ -3,23 +3,18 @@ set -eu
 
 mkdir -p /kerkoapp/instance
 
+# Copy Render secret file into Kerko instance (runtime)
 if [ -f /etc/secrets/.secrets.toml ]; then
   cp /etc/secrets/.secrets.toml /kerkoapp/instance/.secrets.toml
   chmod 600 /kerkoapp/instance/.secrets.toml || true
 fi
 
-# Populate instance config if missing
+# Populate instance config if missing (supports volume-masked instance dir)
 if [ ! -f /kerkoapp/instance/config.toml ] && [ -f /kerkoapp/config.toml ]; then
   cp /kerkoapp/config.toml /kerkoapp/instance/config.toml
 fi
 
-# Render provides PORT; default locally
 : "${PORT:=10000}"
-
-# Start sync in background so Render sees an open port quickly
-(
-  flask kerko sync || true
-) &
 
 exec gunicorn \
   --bind 0.0.0.0:"$PORT" \
